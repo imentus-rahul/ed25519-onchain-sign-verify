@@ -18,6 +18,7 @@ describe("ed25519_poc", () => {
   const program = anchor.workspace.Ed25519Poc as Program<Ed25519Poc>;
   //let person: anchor.web3.Keypair;
   const MSG = Uint8Array.from(Buffer.from("this is such a good message to sign"));
+  const MSG2 = Uint8Array.from(Buffer.from("this is such a good message to sign 2"));
   let invoker = anchor.web3.Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync('./keys/invoker.json').toString())));
   let signature: Uint8Array;
 
@@ -40,7 +41,7 @@ describe("ed25519_poc", () => {
     let ix01 = anchor.web3.Ed25519Program.createInstructionWithPublicKey(
       {
         publicKey: invoker.publicKey.toBytes(), // The public key associated with the instruction (as bytes)
-        message: MSG,  // The message to be included in the instruction (as a Buffer)
+        message: MSG, // MSG2 // The message to be included in the instruction (as a Buffer)
         signature: signature, // The signature associated with the instruction (as a Buffer)
         // instructionIndex: 0
       }
@@ -75,6 +76,11 @@ describe("ed25519_poc", () => {
 
     let tx = new anchor.web3.Transaction().add(
       ix01, ix02
+      // ix01 // update SC in case you want to verify in a single ix; but it is not possible to verify in single ix
+      // // reason being that, nacl.verify is a compute heavy statement
+      // // you cannot directly drag and drop/or/call that function in your custom contract method
+      // // For that, solana has provided compute optimized Ed25519 program
+      // // Using that program's ix at 0th index we can have nacl.verify like behaviour onchain. 
     )
 
     tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;

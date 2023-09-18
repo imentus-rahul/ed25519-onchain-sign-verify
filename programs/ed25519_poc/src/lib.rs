@@ -77,13 +77,16 @@ pub mod utils {
         sig: &[u8],
     ) -> Result<()> {
         if ix.program_id       != ED25519_ID                   ||  // The program id we expect
-            ix.accounts.len()   != 0                            ||  // With no context accounts
-            ix.data.len()       != (16 + 64 + 32 + msg.len())
+        ix.accounts.len()   != 0                            ||  // With no context accounts
+        ix.data.len()       != (16 + 64 + 32 + msg.len())
         // And data of this size
         {
             return Err(CustomErrorCode::SigVerificationFailed.into()); // Otherwise, we can already throw err
         }
-
+        
+        msg!("🚀 ~ file: lib.rs:80 ~ ix: {:?}", ix);
+        msg!("🚀 ~ file: lib.rs:80 ~ ix.data.len(): {:?}", ix.data.len());
+        msg!("🚀 ~ file: lib.rs:80 ~ msg.len(): {:?}", msg.len());
         check_ed25519_data(&ix.data, pubkey, msg, sig)?; // If that's not the case, check data
 
         Ok(())
